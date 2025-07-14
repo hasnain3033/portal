@@ -1,52 +1,39 @@
-import { AuthServiceClient } from "@authservice/core";
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import { apiRequest, apiRequestOrThrow } from "./api.server";
 
-// Since we're using the SDK in a server environment, we need a custom storage adapter
-class ServerStorageAdapter {
-  private storage: Map<string, string> = new Map();
-
-  async getItem(key: string): Promise<string | null> {
-    return this.storage.get(key) || null;
-  }
-
-  async setItem(key: string, value: string): Promise<void> {
-    this.storage.set(key, value);
-  }
-
-  async removeItem(key: string): Promise<void> {
-    this.storage.delete(key);
-  }
-}
-
-// Since the portal is for developers, we need to use the developer auth endpoints directly
-// The SDK is designed for app users, not developers
+// The portal uses server-side authentication with cookies
+// The SDK is designed for app users, not for the developer portal
 export async function loginDeveloper(email: string, password: string) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/auth/developers/login`, {
+  const response = await apiRequest('/auth/developers/login', {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({ email, password }),
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Login failed");
+    const errorText = await response.text();
+    throw new Error(`Login failed: ${errorText}`);
   }
 
-  return response.json();
+  // Get all cookies from the backend response
+  const setCookieHeader = response.headers.get('set-cookie');
+  const cookies = setCookieHeader ? [setCookieHeader] : [];
+
+  const data = await response.json();
+  return { data, cookies };
 }
 
 // Get current developer info
 export async function getCurrentDeveloper(accessToken: string) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/developers/me`, {
+  const response = await apiRequest('/developers/me', {
     headers: {
       "Authorization": `Bearer ${accessToken}`,
     },
   });
 
   if (!response.ok) {
-    throw new Error("Failed to get developer info");
+    const errorBody = await response.text();
+    console.error(`Failed to get developer info: ${response.status} ${response.statusText}`, errorBody);
+    throw new Error(`Failed to get developer info: ${response.status}`);
   }
 
   return response.json();
@@ -54,26 +41,27 @@ export async function getCurrentDeveloper(accessToken: string) {
 
 // Call our analytics endpoint
 export async function getDashboardStats(accessToken: string) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/analytics/dashboard`, {
+  const response = await apiRequest('/analytics/dashboard', {
     headers: {
       "Authorization": `Bearer ${accessToken}`,
     },
   });
 
   if (!response.ok) {
-    throw new Error("Failed to get dashboard stats");
+    const errorBody = await response.text();
+    console.error(`Failed to get dashboard stats: ${response.status} ${response.statusText}`, errorBody);
+    throw new Error(`Failed to get dashboard stats: ${response.status}`);
   }
 
   return response.json();
 }
 
-// Session management
-const sessionSecret = process.env.SESSION_SECRET;
-if (!sessionSecret) {
-  throw new Error("SESSION_SECRET must be set");
-}
+import { ENV } from './env.server';
 
-const storage = createCookieSessionStorage({
+// Session management
+const sessionSecret = ENV.SESSION_SECRET;
+
+export const storage = createCookieSessionStorage({
   cookie: {
     name: "portal_session",
     secure: process.env.NODE_ENV === "production",
@@ -93,6 +81,8 @@ export async function requireAuth(request: Request) {
   const session = await getUserSession(request);
   const accessToken = session.get("accessToken");
   
+  console.log("requireAuth - Token present:", accessToken ? "Yes" : "No");
+  
   if (!accessToken) {
     throw redirect("/login");
   }
@@ -104,28 +94,116 @@ export async function requireAuth(request: Request) {
 
 export async function createUserSession(
   accessToken: string,
-  refreshToken: string,
-  redirectTo: string
+  redirectTo: string,
+  backendCookies?: string[]
 ) {
   const session = await storage.getSession();
   session.set("accessToken", accessToken);
-  session.set("refreshToken", refreshToken);
   
-  return redirect(redirectTo, {
-    headers: {
-      "Set-Cookie": await storage.commitSession(session),
-    },
-  });
+  console.log("Creating user session with token:", accessToken ? "Token present" : "No token");
+  
+  // Prepare headers with both our session cookie and backend cookies
+  const headers = new Headers();
+  
+  // Add our session cookie
+  headers.append("Set-Cookie", await storage.commitSession(session));
+  
+  // Forward backend cookies (including refresh_token)
+  if (backendCookies && backendCookies.length > 0) {
+    backendCookies.forEach(cookie => {
+      headers.append("Set-Cookie", cookie);
+    });
+  }
+  
+  return redirect(redirectTo, { headers });
 }
 
 export async function logout(request: Request) {
   const session = await getUserSession(request);
   
-  // TODO: Call logout endpoint on auth service
+  // Clear both our session and the refresh_token cookie
+  const headers = new Headers();
   
-  return redirect("/login", {
+  // Clear our session
+  headers.append("Set-Cookie", await storage.destroySession(session));
+  
+  // Clear the refresh_token cookie by setting it with Max-Age=0
+  headers.append("Set-Cookie", "refresh_token=; Path=/; Max-Age=0; HttpOnly");
+  
+  return redirect("/login", { headers });
+}
+
+// Refresh access token using the refresh token cookie
+export async function refreshAccessToken(request: Request): Promise<string | null> {
+  try {
+    // Forward all cookies from the client request to the backend
+    // This includes the refresh_token cookie set by the backend
+    const cookieHeader = request.headers.get("Cookie");
+    
+    if (!cookieHeader) {
+      console.log("No cookies found in request");
+      return null;
+    }
+    
+    const response = await apiRequest('/auth/developers/refresh', {
+      method: "POST",
+      headers: {
+        // Forward all cookies including refresh_token
+        Cookie: cookieHeader,
+      },
+    });
+
+    if (!response.ok) {
+      console.log(`Token refresh failed with status: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.access_token;
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+    return null;
+  }
+}
+
+// Make authenticated API request with automatic token refresh
+export async function apiRequestWithAuth(
+  path: string,
+  accessToken: string,
+  options: RequestInit = {},
+  request?: Request
+): Promise<Response> {
+  // First attempt with current access token
+  let response = await apiRequest(path, {
+    ...options,
     headers: {
-      "Set-Cookie": await storage.destroySession(session),
+      ...options.headers,
+      "Authorization": `Bearer ${accessToken}`,
     },
   });
+
+  // If unauthorized and we have a request object, try to refresh ONCE
+  if (response.status === 401 && request) {
+    console.log("Access token expired, attempting refresh...");
+    const newAccessToken = await refreshAccessToken(request);
+    
+    if (newAccessToken) {
+      // Update session with new token
+      const session = await getUserSession(request);
+      session.set("accessToken", newAccessToken);
+      
+      // Retry the request with new token
+      response = await apiRequest(path, {
+        ...options,
+        headers: {
+          ...options.headers,
+          "Authorization": `Bearer ${newAccessToken}`,
+        },
+      });
+      
+      // If still 401, don't retry again - let caller handle it
+    }
+  }
+
+  return response;
 }

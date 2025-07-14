@@ -1,5 +1,7 @@
+import { apiRequest } from "./api.server";
+
 export async function getApps(accessToken: string) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/apps`, {
+  const response = await apiRequest('/apps', {
     headers: {
       "Authorization": `Bearer ${accessToken}`,
     },
@@ -13,7 +15,7 @@ export async function getApps(accessToken: string) {
 }
 
 export async function getApp(accessToken: string, appId: string) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/apps/${appId}`, {
+  const response = await apiRequest(`/apps/${appId}`, {
     headers: {
       "Authorization": `Bearer ${accessToken}`,
     },
@@ -27,11 +29,10 @@ export async function getApp(accessToken: string, appId: string) {
 }
 
 export async function createApp(accessToken: string, data: { name: string; description?: string }) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/apps`, {
+  const response = await apiRequest('/apps', {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
@@ -45,11 +46,10 @@ export async function createApp(accessToken: string, data: { name: string; descr
 }
 
 export async function updateApp(accessToken: string, appId: string, data: { name?: string; description?: string; isActive?: boolean }) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/apps/${appId}`, {
+  const response = await apiRequest(`/apps/${appId}`, {
     method: "PUT",
     headers: {
       "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
@@ -63,7 +63,7 @@ export async function updateApp(accessToken: string, appId: string, data: { name
 }
 
 export async function getAppStats(accessToken: string, appId: string) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/analytics/apps/${appId}/stats`, {
+  const response = await apiRequest(`/analytics/apps/${appId}`, {
     headers: {
       "Authorization": `Bearer ${accessToken}`,
     },
@@ -78,7 +78,7 @@ export async function getAppStats(accessToken: string, appId: string) {
 
 // OAuth credentials management
 export async function getOAuthCredentials(accessToken: string, appId: string) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/apps/${appId}/oauth-credentials`, {
+  const response = await apiRequest(`/apps/${appId}/oauth-credentials`, {
     headers: {
       "Authorization": `Bearer ${accessToken}`,
     },
@@ -97,11 +97,10 @@ export async function updateOAuthCredentials(
   provider: string,
   data: { clientId: string; clientSecret: string; redirectUri?: string }
 ) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/apps/${appId}/oauth-credentials`, {
+  const response = await apiRequest(`/apps/${appId}/oauth-credentials`, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       provider,
@@ -118,7 +117,7 @@ export async function updateOAuthCredentials(
 }
 
 export async function deleteOAuthCredentials(accessToken: string, appId: string, provider: string) {
-  const response = await fetch(`${process.env.AUTH_API_URL || "http://localhost:3000"}/apps/${appId}/oauth-credentials/${provider}`, {
+  const response = await apiRequest(`/apps/${appId}/oauth-credentials/${provider}`, {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${accessToken}`,

@@ -5,7 +5,9 @@ import { requireAuth } from "~/services/auth.server";
 import { getApps } from "~/services/apps.server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import { Plus, Users, Key, Settings } from "lucide-react";
+import { Plus, Users, Key, Settings, Box } from "lucide-react";
+import { AuthenticatedLayout } from "~/components/layout";
+import { EmptyState } from "~/components/ui/EmptyState";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { accessToken } = await requireAuth(request);
@@ -18,38 +20,36 @@ export default function Apps() {
   const { apps } = useLoaderData<typeof loader>();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Applications
-            </h1>
-            <Link to="/apps/new">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Create New App
-              </Button>
-            </Link>
+    <AuthenticatedLayout>
+      <div className="space-y-8">
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Applications</h1>
+            <p className="mt-1 text-sm text-gray-600">
+              Manage your authentication applications
+            </p>
           </div>
+          <Link to="/apps/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Create New App
+            </Button>
+          </Link>
         </div>
-      </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Apps Grid */}
+        <div>
         {apps.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <p className="text-lg text-gray-500 mb-4">
-                You haven't created any applications yet.
-              </p>
-              <Link to="/apps/new">
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Your First App
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={<Box className="h-12 w-12" />}
+            title="No applications yet"
+            description="Create your first application to start authenticating users"
+            action={{
+              label: "Create Your First App",
+              href: "/apps/new"
+            }}
+          />
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {apps.map((app) => (
@@ -95,7 +95,8 @@ export default function Apps() {
             ))}
           </div>
         )}
-      </main>
-    </div>
+        </div>
+      </div>
+    </AuthenticatedLayout>
   );
 }

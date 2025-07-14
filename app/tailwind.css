@@ -2,9 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import design system styles */
+@import './styles/design-system.css';
+
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-surface-background;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;

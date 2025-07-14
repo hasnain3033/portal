@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/com
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Button } from "~/components/ui/button";
 import { ArrowLeft, Users, Settings, Key, BarChart3, Shield } from "lucide-react";
+import { AuthenticatedLayout } from "~/components/layout";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { accessToken } = await requireAuth(request);
@@ -28,7 +29,8 @@ export default function AppDetails() {
   const { app, stats } = useLoaderData<typeof loader>();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AuthenticatedLayout>
+      <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
@@ -138,6 +140,7 @@ export default function AppDetails() {
           <Outlet />
         </Tabs>
       </main>
-    </div>
+      </div>
+    </AuthenticatedLayout>
   );
 }

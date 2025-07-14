@@ -26,10 +26,10 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    // Login as developer
-    const response = await loginDeveloper(email, password);
+    // Login as developer - we need the raw response to forward cookies
+    const { data, cookies } = await loginDeveloper(email, password);
 
-    if (response.requiresMfa) {
+    if (data.requiresMfa) {
       // TODO: Handle MFA flow
       return json(
         { error: "MFA required - not yet implemented" },
@@ -37,11 +37,11 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    // Store tokens and redirect
+    // Create session and forward backend cookies
     return createUserSession(
-      response.accessToken,
-      response.refreshToken || "",
-      "/dashboard"
+      data.access_token,
+      "/dashboard",
+      cookies // Forward the backend cookies including refresh_token
     );
   } catch (error) {
     console.error("Login error:", error);

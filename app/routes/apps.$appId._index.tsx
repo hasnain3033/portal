@@ -1,119 +1,73 @@
-import { useLoaderData } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Copy, Eye, EyeOff } from "lucide-react";
+import { useLoaderData } from "@remix-run/react";
+import { Copy, ExternalLink } from "lucide-react";
 import { useState } from "react";
 
 export default function AppOverview() {
   const { app } = useLoaderData<{ app: any }>();
-  const [showSecret, setShowSecret] = useState(false);
-  const [copied, setCopied] = useState<string | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  const copyToClipboard = async (text: string, field: string) => {
-    await navigator.clipboard.writeText(text);
-    setCopied(field);
-    setTimeout(() => setCopied(null), 2000);
+  const copyToClipboard = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
   };
+
+  const hostedPagesUrl = `${window.location.origin.replace('portal', 'localhost:3000')}/hosted/${app.id}`;
 
   return (
     <div className="space-y-6">
-      {/* API Credentials */}
+      {/* App Configuration */}
       <Card>
         <CardHeader>
-          <CardTitle>API Credentials</CardTitle>
-          <CardDescription>
-            Use these credentials to authenticate your application
-          </CardDescription>
+          <CardTitle>App Configuration</CardTitle>
+          <CardDescription>Essential configuration for your application</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium">Client ID</label>
-            <div className="flex items-center mt-1 space-x-2">
-              <code className="flex-1 bg-gray-100 px-3 py-2 rounded font-mono text-sm">
-                {app.clientId}
-              </code>
+            <label className="text-sm font-medium text-gray-700">Client ID</label>
+            <div className="mt-1 flex items-center space-x-2">
+              <code className="flex-1 bg-gray-100 px-3 py-2 rounded text-sm">{app.clientId}</code>
               <Button
-                variant="outline"
                 size="sm"
+                variant="outline"
                 onClick={() => copyToClipboard(app.clientId, 'clientId')}
               >
-                {copied === 'clientId' ? 'Copied!' : <Copy className="h-4 w-4" />}
+                {copiedField === 'clientId' ? 'Copied!' : <Copy className="h-4 w-4" />}
               </Button>
             </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium">Client Secret</label>
-            <div className="flex items-center mt-1 space-x-2">
-              <code className="flex-1 bg-gray-100 px-3 py-2 rounded font-mono text-sm">
-                {showSecret ? app.clientSecret : '••••••••••••••••••••••••'}
-              </code>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSecret(!showSecret)}
-              >
-                {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => copyToClipboard(app.clientSecret, 'clientSecret')}
-              >
-                {copied === 'clientSecret' ? 'Copied!' : <Copy className="h-4 w-4" />}
-              </Button>
+            <label className="text-sm font-medium text-gray-700">Redirect URIs</label>
+            <div className="mt-1 space-y-2">
+              {app.redirectUris?.length > 0 ? (
+                app.redirectUris.map((uri: string, index: number) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <code className="flex-1 bg-gray-100 px-3 py-2 rounded text-sm">{uri}</code>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">No redirect URIs configured</p>
+              )}
             </div>
-            <p className="text-xs text-amber-600 mt-2">
-              ⚠️ Keep your client secret secure. Never expose it in client-side code.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Integration Guide */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Start</CardTitle>
-          <CardDescription>
-            Get started with our authentication service
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="font-medium mb-2">1. Install the SDK</h4>
-            <pre className="bg-gray-100 p-3 rounded overflow-x-auto">
-              <code>npm install @authservice/core @authservice/react</code>
-            </pre>
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">2. Initialize the client</h4>
-            <pre className="bg-gray-100 p-3 rounded overflow-x-auto text-sm">
-              <code>{`import { AuthServiceClient } from '@authservice/core';
-
-const authClient = new AuthServiceClient({
-  clientId: '${app.clientId}',
-  clientSecret: '${app.clientSecret}',
-  apiUrl: '${process.env.AUTH_API_URL || "http://localhost:3000"}'
-});`}</code>
-            </pre>
-          </div>
-
-          <div>
-            <h4 className="font-medium mb-2">3. Use authentication</h4>
-            <pre className="bg-gray-100 p-3 rounded overflow-x-auto text-sm">
-              <code>{`// Sign up a new user
-const { user, accessToken } = await authClient.signUp({
-  email: 'user@example.com',
-  password: 'securepassword'
-});
-
-// Login existing user
-const { user, accessToken } = await authClient.login({
-  email: 'user@example.com',
-  password: 'securepassword'
-});`}</code>
-            </pre>
+            <label className="text-sm font-medium text-gray-700">Allowed Origins</label>
+            <div className="mt-1 space-y-2">
+              {app.allowedOrigins?.length > 0 ? (
+                app.allowedOrigins.map((origin: string, index: number) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <code className="flex-1 bg-gray-100 px-3 py-2 rounded text-sm">{origin}</code>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">No allowed origins configured</p>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -122,34 +76,180 @@ const { user, accessToken } = await authClient.login({
       <Card>
         <CardHeader>
           <CardTitle>Hosted Authentication Pages</CardTitle>
-          <CardDescription>
-            Pre-built, customizable authentication pages for your app
-          </CardDescription>
+          <CardDescription>Pre-built authentication UI for your application</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="text-sm font-medium mb-2">Login Page</h4>
+              <div className="flex items-center space-x-2">
+                <code className="flex-1 bg-gray-100 px-3 py-2 rounded text-xs">
+                  {hostedPagesUrl}/login
+                </code>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(`${hostedPagesUrl}/login`, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-medium mb-2">Signup Page</h4>
+              <div className="flex items-center space-x-2">
+                <code className="flex-1 bg-gray-100 px-3 py-2 rounded text-xs">
+                  {hostedPagesUrl}/signup
+                </code>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(`${hostedPagesUrl}/signup`, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-medium mb-2">Password Reset</h4>
+              <div className="flex items-center space-x-2">
+                <code className="flex-1 bg-gray-100 px-3 py-2 rounded text-xs">
+                  {hostedPagesUrl}/reset
+                </code>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(`${hostedPagesUrl}/reset`, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-medium mb-2">Email Verification</h4>
+              <div className="flex items-center space-x-2">
+                <code className="flex-1 bg-gray-100 px-3 py-2 rounded text-xs">
+                  {hostedPagesUrl}/verify-email
+                </code>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(`${hostedPagesUrl}/verify-email`, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <p className="text-sm text-gray-600">
+              These hosted pages provide a complete authentication flow with your branding.
+              Users will be redirected back to your application after authentication.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Integration Guide */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Integration Guide</CardTitle>
+          <CardDescription>Get started with authentication in minutes</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <h4 className="font-medium mb-2">1. Install the SDK</h4>
+            <div className="bg-gray-900 text-gray-100 p-3 rounded">
+              <code>npm install @authservice/react</code>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-medium mb-2">2. Configure the AuthProvider</h4>
+            <div className="bg-gray-900 text-gray-100 p-3 rounded overflow-x-auto">
+              <pre>{`import { AuthProvider } from '@authservice/react';
+
+function App() {
+  return (
+    <AuthProvider 
+      clientId="${app.clientId}"
+      redirectUri="${app.redirectUris?.[0] || 'http://localhost:3000/callback'}"
+    >
+      {/* Your app */}
+    </AuthProvider>
+  );
+}`}</pre>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-medium mb-2">3. Use authentication hooks</h4>
+            <div className="bg-gray-900 text-gray-100 p-3 rounded overflow-x-auto">
+              <pre>{`import { useAuth } from '@authservice/react';
+
+function LoginButton() {
+  const { login, logout, isAuthenticated, user } = useAuth();
+  
+  if (isAuthenticated) {
+    return (
+      <div>
+        Welcome {user.email}!
+        <button onClick={logout}>Logout</button>
+      </div>
+    );
+  }
+  
+  return <button onClick={login}>Login</button>;
+}`}</pre>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Authentication Methods */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Authentication Methods</CardTitle>
+          <CardDescription>Available authentication options for your users</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div>
-              <p className="text-sm font-medium mb-1">Login Page</p>
-              <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                {process.env.AUTH_API_URL || "http://localhost:3000"}/hosted/{app.id}/login
-              </code>
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Email/Password</span>
+              <Badge variant="outline" className="bg-green-50">Enabled</Badge>
             </div>
-            <div>
-              <p className="text-sm font-medium mb-1">Sign Up Page</p>
-              <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                {process.env.AUTH_API_URL || "http://localhost:3000"}/hosted/{app.id}/signup
-              </code>
+            
+            <div className="flex items-center justify-between">
+              <span className="text-sm">OAuth Providers</span>
+              <div className="flex gap-2">
+                {app.enabledProviders?.length > 0 ? (
+                  app.enabledProviders.map((provider: string) => (
+                    <Badge key={provider} variant="outline" className="bg-blue-50">
+                      {provider}
+                    </Badge>
+                  ))
+                ) : (
+                  <Badge variant="outline" className="bg-gray-50">None configured</Badge>
+                )}
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium mb-1">Password Reset</p>
-              <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                {process.env.AUTH_API_URL || "http://localhost:3000"}/hosted/{app.id}/reset
-              </code>
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Multi-Factor Authentication</span>
+              <Badge variant="outline" className={app.mfaEnabled ? "bg-green-50" : "bg-gray-50"}>
+                {app.mfaEnabled ? 'Enabled' : 'Disabled'}
+              </Badge>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm">Session Management</span>
+              <Badge variant="outline" className="bg-green-50">Enabled</Badge>
             </div>
           </div>
-          <p className="text-sm text-gray-500 mt-4">
-            Simply redirect users to these URLs and we'll handle the authentication flow.
-          </p>
         </CardContent>
       </Card>
     </div>

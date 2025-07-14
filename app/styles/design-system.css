@@ -1,0 +1,301 @@
+/* Clerk-inspired design system */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Base styles following Clerk's design principles */
+@layer base {
+  :root {
+    /* Semantic color tokens */
+    --color-background: theme('colors.surface.background');
+    --color-surface: theme('colors.surface.card');
+    --color-border: theme('colors.surface.border');
+    --color-text-primary: theme('colors.gray.900');
+    --color-text-secondary: theme('colors.gray.600');
+    --color-text-muted: theme('colors.gray.400');
+    
+    /* Spacing scale */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    
+    /* Border radius scale */
+    --radius-sm: theme('borderRadius.sm');
+    --radius-default: theme('borderRadius.DEFAULT');
+    --radius-md: theme('borderRadius.md');
+    --radius-lg: theme('borderRadius.lg');
+    
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+    --transition-slow: 350ms ease;
+  }
+  
+  .dark {
+    --color-background: theme('colors.gray.900');
+    --color-surface: theme('colors.gray.800');
+    --color-border: theme('colors.gray.700');
+    --color-text-primary: theme('colors.gray.50');
+    --color-text-secondary: theme('colors.gray.300');
+    --color-text-muted: theme('colors.gray.500');
+  }
+  
+  * {
+    @apply border-surface-border;
+  }
+  
+  html {
+    @apply antialiased;
+  }
+  
+  body {
+    @apply bg-surface-background text-gray-900;
+  }
+  
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-gray-900 tracking-tight;
+  }
+  
+  h1 {
+    @apply text-3xl lg:text-4xl;
+  }
+  
+  h2 {
+    @apply text-2xl lg:text-3xl;
+  }
+  
+  h3 {
+    @apply text-xl lg:text-2xl;
+  }
+  
+  h4 {
+    @apply text-lg lg:text-xl;
+  }
+  
+  p {
+    @apply text-gray-600;
+  }
+  
+  /* Links */
+  a {
+    @apply text-primary-600 hover:text-primary-700 transition-colors duration-150;
+  }
+  
+  /* Code blocks */
+  code {
+    @apply font-mono text-sm bg-gray-100 px-1 py-0.5 rounded;
+  }
+  
+  pre code {
+    @apply bg-transparent p-0;
+  }
+}
+
+/* Components following Clerk's patterns */
+@layer components {
+  /* Cards */
+  .card {
+    @apply bg-surface-card rounded-lg shadow-card p-6 transition-shadow hover:shadow-md;
+  }
+  
+  .card-header {
+    @apply mb-4 pb-4 border-b;
+  }
+  
+  .card-title {
+    @apply text-lg font-semibold text-gray-900;
+  }
+  
+  .card-description {
+    @apply text-sm text-gray-600 mt-1;
+  }
+  
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center font-medium rounded-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-sm {
+    @apply text-sm px-3 py-1.5;
+  }
+  
+  .btn-md {
+    @apply text-sm px-4 py-2;
+  }
+  
+  .btn-lg {
+    @apply text-base px-6 py-3;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-gray-700 border hover:bg-gray-50 focus:ring-gray-500;
+  }
+  
+  .btn-ghost {
+    @apply text-gray-700 hover:bg-gray-100 focus:ring-gray-500;
+  }
+  
+  .btn-danger {
+    @apply bg-error text-white hover:bg-error-dark focus:ring-error;
+  }
+  
+  /* Forms */
+  .input {
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+  }
+  
+  .input-error {
+    @apply border-error focus:border-error focus:ring-error;
+  }
+  
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  
+  .help-text {
+    @apply text-sm text-gray-500 mt-1;
+  }
+  
+  .error-text {
+    @apply text-sm text-error mt-1;
+  }
+  
+  /* Tables */
+  .table {
+    @apply min-w-full divide-y divide-gray-200;
+  }
+  
+  .table thead {
+    @apply bg-gray-50;
+  }
+  
+  .table th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+  }
+  
+  .table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+  }
+  
+  .table tbody tr {
+    @apply hover:bg-gray-50 transition-colors;
+  }
+  
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-gray {
+    @apply bg-gray-100 text-gray-800;
+  }
+  
+  .badge-primary {
+    @apply bg-primary-100 text-primary-800;
+  }
+  
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .badge-error {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  /* Empty states */
+  .empty-state {
+    @apply text-center py-12;
+  }
+  
+  .empty-state-icon {
+    @apply mx-auto h-12 w-12 text-gray-400 mb-4;
+  }
+  
+  .empty-state-title {
+    @apply text-lg font-medium text-gray-900 mb-2;
+  }
+  
+  .empty-state-description {
+    @apply text-sm text-gray-500 mb-6;
+  }
+  
+  /* Loading states */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+  
+  .skeleton-text {
+    @apply h-4 skeleton mb-2;
+  }
+  
+  .skeleton-title {
+    @apply h-6 skeleton mb-4 w-1/3;
+  }
+  
+  /* Animations */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+  
+  .loading-shimmer {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(to right, #f0f0f0 0%, #f8f8f8 50%, #f0f0f0 100%);
+    background-size: 1000px 100%;
+  }
+}
+
+/* Utilities */
+@layer utilities {
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent;
+  }
+  
+  /* Glass morphism effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm;
+  }
+  
+  .dark .glass {
+    @apply bg-gray-800/80;
+  }
+  
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.gray.300') transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+}
