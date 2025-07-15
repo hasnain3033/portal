@@ -79,7 +79,7 @@ export async function getUserSession(request: Request) {
 
 export async function requireAuth(request: Request) {
   const session = await getUserSession(request);
-  const accessToken = session.get("accessToken");
+  let accessToken = session.get("accessToken");
   
   console.log("requireAuth - Token present:", accessToken ? "Yes" : "No");
   
@@ -87,7 +87,34 @@ export async function requireAuth(request: Request) {
     throw redirect("/login");
   }
 
-  // TODO: Verify token is still valid
+  // Try to use the token to verify it's still valid
+  const response = await apiRequest('/developers/me', {
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  });
+
+  // If token is expired, try to refresh it
+  if (response.status === 401) {
+    console.log("Access token expired in requireAuth, attempting refresh...");
+    const newAccessToken = await refreshAccessToken(request);
+    
+    if (newAccessToken) {
+      // Update session with new token
+      session.set("accessToken", newAccessToken);
+      accessToken = newAccessToken;
+      
+      // Save the session
+      const headers = new Headers();
+      headers.append("Set-Cookie", await storage.commitSession(session));
+      
+      // Return the new token
+      return { accessToken: newAccessToken, session, headers };
+    } else {
+      // Refresh failed, redirect to login
+      throw redirect("/login");
+    }
+  }
   
   return { accessToken, session };
 }

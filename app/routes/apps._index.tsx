@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, Link } from "@remix-run/react";
-import { requireAuth } from "~/services/auth.server";
+import { requireAuth, getCurrentDeveloper } from "~/services/auth.server";
 import { getApps } from "~/services/apps.server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
@@ -11,9 +11,13 @@ import { EmptyState } from "~/components/ui/EmptyState";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { accessToken } = await requireAuth(request);
-  const apps = await getApps(accessToken);
   
-  return json({ apps });
+  const [developer, apps] = await Promise.all([
+    getCurrentDeveloper(accessToken),
+    getApps(accessToken)
+  ]);
+  
+  return json({ developer, apps });
 }
 
 export default function Apps() {
@@ -26,7 +30,7 @@ export default function Apps() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">Applications</h1>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-1 text-sm text-gray-500">
               Manage your authentication applications
             </p>
           </div>
@@ -81,9 +85,11 @@ export default function Apps() {
                         </Button>
                       </Link>
                       <div className="flex items-center space-x-2">
-                        <span className={`inline-flex h-2 w-2 rounded-full ${
-                          app.isActive ? 'bg-green-500' : 'bg-gray-300'
-                        }`} />
+                        {app.isActive ? (
+                          <span className="inline-flex h-2 w-2 rounded-full bg-success" />
+                        ) : (
+                          <span className="inline-flex h-2 w-2 rounded-full bg-gray-400" />
+                        )}
                         <span className="text-sm text-gray-500">
                           {app.isActive ? 'Active' : 'Inactive'}
                         </span>

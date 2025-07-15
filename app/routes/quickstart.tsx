@@ -1,9 +1,13 @@
 import { useState } from "react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { AuthenticatedLayout } from "~/components/layout";
 import { Copy, Check, ChevronRight, Code, Terminal, Palette, Shield, Zap } from "lucide-react";
+import { requireAuth, getCurrentDeveloper } from "~/services/auth.server";
 
 const FRAMEWORKS = [
   { id: 'react', name: 'React', icon: '⚛️' },
@@ -12,7 +16,15 @@ const FRAMEWORKS = [
   { id: 'vanilla', name: 'Vanilla JS', icon: '🟨' },
 ];
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { accessToken } = await requireAuth(request);
+  const developer = await getCurrentDeveloper(accessToken);
+  
+  return json({ developer });
+}
+
 export default function QuickStart() {
+  const { developer } = useLoaderData<typeof loader>();
   const [selectedFramework, setSelectedFramework] = useState('react');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
@@ -169,13 +181,13 @@ document.getElementById('logout-btn').addEventListener('click', () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow">
+      <div className="min-h-screen bg-surface-background">
+        <header className="bg-surface-card shadow">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Quick Start Guide
             </h1>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-gray-500">
               Get up and running with authentication in minutes
             </p>
           </div>
@@ -197,7 +209,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                     className={`p-4 rounded-lg border-2 transition-colors ${
                       selectedFramework === framework.id
                         ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-surface-border hover:border-surface-border'
                     }`}
                   >
                     <div className="text-2xl mb-2">{framework.icon}</div>
@@ -216,7 +228,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      completedSteps.has('install') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                      completedSteps.has('install') ? 'bg-success text-white' : 'bg-gray-200'
                     }`}>
                       {completedSteps.has('install') ? <Check className="h-5 w-5" /> : '1'}
                     </div>
@@ -237,13 +249,13 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-gray-300 hover:text-white"
+                    className="text-gray-400 hover:text-gray-600"
                     onClick={() => copyCode(getInstallCommand(), 'install')}
                   >
                     {copiedCode === 'install' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
-                <p className="text-sm text-gray-600 mt-3">
+                <p className="text-sm text-gray-500 mt-3">
                   This installs the authentication SDK for {FRAMEWORKS.find(f => f.id === selectedFramework)?.name}
                 </p>
               </CardContent>
@@ -255,7 +267,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      completedSteps.has('setup') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                      completedSteps.has('setup') ? 'bg-success text-white' : 'bg-gray-200'
                     }`}>
                       {completedSteps.has('setup') ? <Check className="h-5 w-5" /> : '2'}
                     </div>
@@ -277,7 +289,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-gray-300 hover:text-white ml-4"
+                      className="text-gray-400 hover:text-gray-600 ml-4"
                       onClick={() => copyCode(getSetupCode(), 'setup')}
                     >
                       {copiedCode === 'setup' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -298,7 +310,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      completedSteps.has('implement') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                      completedSteps.has('implement') ? 'bg-success text-white' : 'bg-gray-200'
                     }`}>
                       {completedSteps.has('implement') ? <Check className="h-5 w-5" /> : '3'}
                     </div>
@@ -320,7 +332,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-gray-300 hover:text-white ml-4"
+                      className="text-gray-400 hover:text-gray-600 ml-4"
                       onClick={() => copyCode(getUsageCode(), 'usage')}
                     >
                       {copiedCode === 'usage' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -336,7 +348,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      completedSteps.has('test') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                      completedSteps.has('test') ? 'bg-success text-white' : 'bg-gray-200'
                     }`}>
                       {completedSteps.has('test') ? <Check className="h-5 w-5" /> : '4'}
                     </div>
@@ -353,15 +365,15 @@ document.getElementById('logout-btn').addEventListener('click', () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Terminal className="h-5 w-5 text-gray-600" />
+                  <Terminal className="h-5 w-5 text-gray-500" />
                   <p>Run your application and click the login button</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ChevronRight className="h-5 w-5 text-gray-600" />
+                  <ChevronRight className="h-5 w-5 text-gray-500" />
                   <p>You'll be redirected to the hosted login page</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ChevronRight className="h-5 w-5 text-gray-600" />
+                  <ChevronRight className="h-5 w-5 text-gray-500" />
                   <p>After login, you'll be redirected back to your app</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -384,7 +396,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                   <Shield className="h-8 w-8 text-blue-500 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium mb-1">Enable MFA</h4>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       Add two-factor authentication for enhanced security
                     </p>
                   </div>
@@ -394,7 +406,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                   <Palette className="h-8 w-8 text-purple-500 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium mb-1">Customize Branding</h4>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       Customize the hosted pages with your brand colors and logo
                     </p>
                   </div>
@@ -404,7 +416,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                   <Code className="h-8 w-8 text-green-500 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium mb-1">Add OAuth Providers</h4>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       Enable social login with Google, GitHub, and more
                     </p>
                   </div>
@@ -414,7 +426,7 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                   <Zap className="h-8 w-8 text-yellow-500 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium mb-1">Setup Webhooks</h4>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       Get real-time notifications for auth events
                     </p>
                   </div>
@@ -430,19 +442,19 @@ document.getElementById('logout-btn').addEventListener('click', () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <a href="#" className="flex items-center gap-2 text-blue-600 hover:underline">
+                <a href="#" className="flex items-center gap-2 text-primary-600 hover:underline">
                   <ChevronRight className="h-4 w-4" />
                   API Documentation
                 </a>
-                <a href="#" className="flex items-center gap-2 text-blue-600 hover:underline">
+                <a href="#" className="flex items-center gap-2 text-primary-600 hover:underline">
                   <ChevronRight className="h-4 w-4" />
                   SDK Reference
                 </a>
-                <a href="#" className="flex items-center gap-2 text-blue-600 hover:underline">
+                <a href="#" className="flex items-center gap-2 text-primary-600 hover:underline">
                   <ChevronRight className="h-4 w-4" />
                   Example Applications
                 </a>
-                <a href="#" className="flex items-center gap-2 text-blue-600 hover:underline">
+                <a href="#" className="flex items-center gap-2 text-primary-600 hover:underline">
                   <ChevronRight className="h-4 w-4" />
                   Video Tutorials
                 </a>

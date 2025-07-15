@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, Link, Outlet } from "@remix-run/react";
-import { requireAuth } from "~/services/auth.server";
+import { requireAuth, getCurrentDeveloper } from "~/services/auth.server";
 import { getApp, getAppStats } from "~/services/apps.server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -10,19 +10,26 @@ import { ArrowLeft, Users, Settings, Key, BarChart3, Shield } from "lucide-react
 import { AuthenticatedLayout } from "~/components/layout";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { accessToken } = await requireAuth(request);
+  const authResult = await requireAuth(request);
+  const accessToken = authResult.accessToken;
   const appId = params.appId;
   
   if (!appId) {
     throw new Response("App ID is required", { status: 400 });
   }
 
-  const [app, stats] = await Promise.all([
-    getApp(accessToken, appId),
-    getAppStats(accessToken, appId),
-  ]);
+  try {
+    const [developer, app, stats] = await Promise.all([
+      getCurrentDeveloper(accessToken),
+      getApp(accessToken, appId),
+      getAppStats(accessToken, appId),
+    ]);
 
-  return json({ app, stats });
+    return json({ developer, app, stats });
+  } catch (error) {
+    console.error("Failed to load app details:", error);
+    throw new Response("Failed to load app details", { status: 500 });
+  }
 }
 
 export default function AppDetails() {
@@ -30,8 +37,8 @@ export default function AppDetails() {
 
   return (
     <AuthenticatedLayout>
-      <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
+      <div className="min-h-screen bg-surface-background">
+      <header className="bg-surface-card shadow">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -50,12 +57,17 @@ export default function AppDetails() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <span className={`inline-flex h-3 w-3 rounded-full ${
-                app.isActive ? 'bg-green-500' : 'bg-gray-300'
-              }`} />
-              <span className="text-sm font-medium">
-                {app.isActive ? 'Active' : 'Inactive'}
-              </span>
+              {app.isActive ? (
+                <>
+                  <span className="inline-flex h-3 w-3 rounded-full bg-success" />
+                  <span className="text-sm font-medium">Active</span>
+                </>
+              ) : (
+                <>
+                  <span className="inline-flex h-3 w-3 rounded-full bg-gray-400" />
+                  <span className="text-sm font-medium">Inactive</span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -137,7 +149,7 @@ export default function AppDetails() {
             </Link>
           </TabsList>
 
-          <Outlet />
+          <Outlet context={{ app, stats }} />
         </Tabs>
       </main>
       </div>

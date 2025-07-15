@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useOutletContext, useFetcher } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -9,7 +9,7 @@ import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
 import { requireAuth } from "~/services/auth.server";
 import { updateApp } from "~/services/apps.server";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Save, Plus, X } from "lucide-react";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -32,12 +32,26 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function AppSettings() {
-  const { app } = useLoaderData<{ app: any }>();
+  const { app } = useOutletContext<{ app: any }>();
   const fetcher = useFetcher();
   const [redirectUris, setRedirectUris] = useState<string[]>(app.redirectUris || []);
   const [allowedOrigins, setAllowedOrigins] = useState<string[]>(app.allowedOrigins || []);
   const [newRedirectUri, setNewRedirectUri] = useState("");
   const [newOrigin, setNewOrigin] = useState("");
+  const [isActive, setIsActive] = useState(app.isActive ?? true);
+  const [mfaEnabled, setMfaEnabled] = useState(app.mfaEnabled ?? false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Auto-dismiss success message after 3 seconds
+  useEffect(() => {
+    if (fetcher.data?.success && !showSuccess) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [fetcher.data?.success, showSuccess]);
 
   const addRedirectUri = () => {
     if (newRedirectUri && !redirectUris.includes(newRedirectUri)) {
@@ -66,6 +80,8 @@ export default function AppSettings() {
     const formData = new FormData(e.currentTarget);
     formData.set("redirectUris", JSON.stringify(redirectUris));
     formData.set("allowedOrigins", JSON.stringify(allowedOrigins));
+    formData.set("isActive", isActive.toString());
+    formData.set("mfaEnabled", mfaEnabled.toString());
     fetcher.submit(formData, { method: "post" });
   };
 
@@ -108,8 +124,8 @@ export default function AppSettings() {
             <Switch
               id="isActive"
               name="isActive"
-              defaultChecked={app.isActive}
-              value="true"
+              checked={isActive}
+              onCheckedChange={setIsActive}
             />
           </div>
         </CardContent>
@@ -130,8 +146,8 @@ export default function AppSettings() {
             <Switch
               id="mfaEnabled"
               name="mfaEnabled"
-              defaultChecked={app.mfaEnabled}
-              value="true"
+              checked={mfaEnabled}
+              onCheckedChange={setMfaEnabled}
             />
           </div>
         </CardContent>
@@ -225,8 +241,8 @@ export default function AppSettings() {
         </Button>
       </div>
 
-      {fetcher.data?.success && (
-        <div className="bg-green-50 border border-green-200 p-4 rounded">
+      {showSuccess && (
+        <div className="bg-green-50 border border-green-200 p-4 rounded transition-opacity duration-300">
           <p className="text-green-800">Settings saved successfully!</p>
         </div>
       )}

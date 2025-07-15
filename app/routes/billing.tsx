@@ -156,8 +156,8 @@ export default function Billing() {
 
   return (
     <AuthenticatedLayout>
-      <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
+      <div className="min-h-screen bg-surface-background">
+      <header className="bg-surface-card shadow">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
             Billing & Plans
@@ -179,7 +179,7 @@ export default function Billing() {
                   <h3 className="text-2xl font-bold">{currentPlan.name}</h3>
                   <Badge variant="outline" className="bg-blue-50">Active</Badge>
                 </div>
-                <p className="text-gray-600 mt-1">{currentPlan.description}</p>
+                <p className="text-gray-500 mt-1">{currentPlan.description}</p>
               </div>
               
               {developer.plan !== 'FREE' && (
@@ -196,19 +196,19 @@ export default function Billing() {
             {/* Usage Stats */}
             <div className="grid grid-cols-3 gap-4 mt-6">
               <div className="border rounded p-4">
-                <p className="text-sm text-gray-600">Applications</p>
+                <p className="text-sm text-gray-500">Applications</p>
                 <p className="text-2xl font-bold">
                   {developer._count?.apps || 0} / {currentPlan.limits.apps === -1 ? '∞' : currentPlan.limits.apps}
                 </p>
               </div>
               <div className="border rounded p-4">
-                <p className="text-sm text-gray-600">Total Users</p>
+                <p className="text-sm text-gray-500">Total Users</p>
                 <p className="text-2xl font-bold">
                   {developer._count?.totalUsers || 0} / {currentPlan.limits.usersPerApp === -1 ? '∞' : `${currentPlan.limits.usersPerApp}/app`}
                 </p>
               </div>
               <div className="border rounded p-4">
-                <p className="text-sm text-gray-600">API Requests (this month)</p>
+                <p className="text-sm text-gray-500">API Requests (this month)</p>
                 <p className="text-2xl font-bold">
                   {developer.monthlyRequests || 0} / {currentPlan.limits.requestsPerMonth === -1 ? '∞' : currentPlan.limits.requestsPerMonth.toLocaleString()}
                 </p>
@@ -223,7 +223,7 @@ export default function Billing() {
           {PLANS.map((plan) => (
             <Card key={plan.name} className={plan.popular ? 'border-blue-500 border-2' : ''}>
               {plan.popular && (
-                <div className="bg-blue-500 text-white text-center py-1 text-sm font-medium">
+                <div className="bg-primary-500 text-white text-center py-1 text-sm font-medium">
                   Most Popular
                 </div>
               )}
@@ -232,7 +232,7 @@ export default function Billing() {
                 <CardDescription>{plan.description}</CardDescription>
                 <div className="mt-4">
                   <span className="text-3xl font-bold">{plan.price}</span>
-                  {plan.price !== 'Custom' && <span className="text-gray-600">/month</span>}
+                  {plan.price !== 'Custom' && <span className="text-gray-500">/month</span>}
                 </div>
               </CardHeader>
               <CardContent>
@@ -284,28 +284,28 @@ export default function Billing() {
           <CardContent className="space-y-4">
             <div>
               <h4 className="font-medium mb-1">Can I change plans at any time?</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-500">
                 Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately and are prorated.
               </p>
             </div>
             
             <div>
               <h4 className="font-medium mb-1">What happens if I exceed my plan limits?</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-500">
                 We'll notify you when you're approaching your limits. API requests will be rate-limited once you exceed your plan's quota.
               </p>
             </div>
             
             <div>
               <h4 className="font-medium mb-1">Do you offer annual billing?</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-500">
                 Yes! Annual billing comes with a 20% discount. You can switch to annual billing from your billing portal.
               </p>
             </div>
             
             <div>
               <h4 className="font-medium mb-1">What payment methods do you accept?</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-500">
                 We accept all major credit cards through Stripe. Enterprise customers can also pay via invoice.
               </p>
             </div>

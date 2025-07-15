@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import { useLoaderData, useSearchParams, useOutletContext } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -58,6 +58,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function AppUsers() {
+  const { app } = useOutletContext<{ app: any }>();
   const { users, totalPages, currentPage, totalUsers, search: initialSearch } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(initialSearch);
@@ -148,11 +149,11 @@ export default function AppUsers() {
                   </thead>
                   <tbody>
                     {users.map((user: AppUser) => (
-                      <tr key={user.id} className="border-b hover:bg-gray-50">
+                      <tr key={user.id} className="border-b hover:bg-surface-background">
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                              <User className="h-5 w-5 text-gray-600" />
+                              <User className="h-5 w-5 text-gray-500" />
                             </div>
                             <div>
                               <p className="font-medium">{user.email}</p>
@@ -198,13 +199,13 @@ export default function AppUsers() {
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <div className="flex items-center gap-1 text-sm text-gray-600">
+                          <div className="flex items-center gap-1 text-sm text-gray-500">
                             <Calendar className="h-3 w-3" />
                             {formatDate(user.createdAt)}
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-500">
                             {user.lastLoginAt ? getRelativeTime(user.lastLoginAt) : 'Never'}
                           </p>
                         </td>
@@ -222,7 +223,7 @@ export default function AppUsers() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-500">
                     Page {currentPage} of {totalPages}
                   </p>
                   <div className="flex gap-2">

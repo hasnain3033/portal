@@ -82,13 +82,13 @@ export default function Signup() {
   const passwordLengthValid = password.length >= 8 || password === "";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow">
+    <div className="flex min-h-screen items-center justify-center bg-surface-background">
+      <div className="w-full max-w-md space-y-8 rounded-lg bg-surface-card p-8 shadow">
         <div>
           <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
             Create Developer Account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-500">
             Sign up to start building with our authentication service
           </p>
         </div>
@@ -107,7 +107,7 @@ export default function Signup() {
               type="email"
               autoComplete="email"
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-surface-border px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
 
@@ -126,10 +126,10 @@ export default function Signup() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-surface-border px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
             {password && !passwordLengthValid && (
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-1 text-sm text-error">
                 Password must be at least 8 characters long
               </p>
             )}
@@ -150,18 +150,18 @@ export default function Signup() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-surface-border px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
             {confirmPassword && !passwordsMatch && (
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-1 text-sm text-error">
                 Passwords do not match
               </p>
             )}
           </div>
 
           {actionData?.error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{actionData.error}</p>
+            <div className="rounded-md bg-error/10 p-4">
+              <p className="text-sm text-error-dark">{actionData.error}</p>
             </div>
           )}
 
@@ -174,7 +174,7 @@ export default function Signup() {
           </Button>
 
           <div className="text-center text-sm">
-            <span className="text-gray-600">Already have an account? </span>
+            <span className="text-gray-500">Already have an account? </span>
             <a
               href="/login"
               className="font-medium text-indigo-600 hover:text-indigo-500"
@@ -185,7 +185,7 @@ export default function Signup() {
         </Form>
 
         <div className="border-t pt-6">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-500">
             <p className="font-medium mb-2">What you get with a free account:</p>
             <ul className="space-y-1 list-disc list-inside">
               <li>1 application</li>

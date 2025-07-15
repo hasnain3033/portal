@@ -69,7 +69,7 @@ export default function Dashboard() {
         {/* Page Header */}
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-gray-500">
             Welcome back! Here's an overview of your authentication service.
           </p>
         </div>
@@ -129,7 +129,7 @@ export default function Dashboard() {
                         }}
                       />
                       <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="text-xs font-medium text-gray-700 bg-white px-2 py-1 rounded shadow-sm">
+                        <span className="text-xs font-medium text-gray-700 bg-surface-card px-2 py-1 rounded shadow-sm">
                           {day.count}
                         </span>
                       </div>
@@ -153,7 +153,7 @@ export default function Dashboard() {
           <CardContent>
             <div className="space-y-4">
               {stats.recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <div key={index} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-surface-background transition-colors">
                   <div className="flex-shrink-0">
                     <div className={`p-2 rounded-full ${
                       activity.type === 'user_signup' 
@@ -173,7 +173,7 @@ export default function Dashboard() {
                         ? `New user signed up`
                         : `User logged in`}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500">
                       {activity.details.email}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">

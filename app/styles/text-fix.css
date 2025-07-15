@@ -1,0 +1,46 @@
+/* Text color fix to ensure visibility */
+@layer base {
+  /* Ensure all text elements have proper color */
+  body,
+  p,
+  span,
+  div,
+  li,
+  td,
+  th,
+  label,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: theme('colors.gray.900');
+  }
+  
+  /* Ensure dark mode works properly */
+  .dark body,
+  .dark p,
+  .dark span,
+  .dark div,
+  .dark li,
+  .dark td,
+  .dark th,
+  .dark label,
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark h4,
+  .dark h5,
+  .dark h6 {
+    color: theme('colors.gray.50');
+  }
+  
+  /* Fix for any elements that might have inherited white text */
+  .bg-surface-background *:not(.text-white),
+  .bg-surface-card *:not(.text-white),
+  .bg-gray-50 *:not(.text-white),
+  .bg-white *:not(.text-white) {
+    color: inherit;
+  }
+}

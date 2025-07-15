@@ -40,7 +40,7 @@ export function ApiKeyDisplay({
       )}
       
       <div className="flex items-center space-x-2">
-        <div className="flex-1 font-mono text-sm bg-gray-50 border border-gray-200 rounded-md px-3 py-2 select-all">
+        <div className="flex-1 font-mono text-sm bg-surface-background border border-surface-border rounded-md px-3 py-2 select-all">
           {displayKey}
         </div>
         

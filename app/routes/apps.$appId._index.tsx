@@ -1,13 +1,21 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { useLoaderData } from "@remix-run/react";
+import { useOutletContext } from "@remix-run/react";
 import { Copy, ExternalLink } from "lucide-react";
 import { useState } from "react";
 
 export default function AppOverview() {
-  const { app } = useLoaderData<{ app: any }>();
+  const { app } = useOutletContext<{ app: any }>();
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  
+  if (!app) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-error">Failed to load app details. Please try refreshing the page.</p>
+      </div>
+    );
+  }
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -15,7 +23,8 @@ export default function AppOverview() {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  const hostedPagesUrl = `${window.location.origin.replace('portal', 'localhost:3000')}/hosted/${app.id}`;
+  // Use a fixed URL for SSR compatibility, or make it configurable
+  const hostedPagesUrl = `http://localhost:3000/hosted/${app.id}`;
 
   return (
     <div className="space-y-6">
@@ -146,7 +155,7 @@ export default function AppOverview() {
           </div>
 
           <div className="border-t pt-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-500">
               These hosted pages provide a complete authentication flow with your branding.
               Users will be redirected back to your application after authentication.
             </p>
@@ -233,14 +242,14 @@ function LoginButton() {
                     </Badge>
                   ))
                 ) : (
-                  <Badge variant="outline" className="bg-gray-50">None configured</Badge>
+                  <Badge variant="outline" className="bg-surface-background">None configured</Badge>
                 )}
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <span className="text-sm">Multi-Factor Authentication</span>
-              <Badge variant="outline" className={app.mfaEnabled ? "bg-green-50" : "bg-gray-50"}>
+              <Badge variant="outline" className={app.mfaEnabled ? "bg-green-50" : "bg-surface-background"}>
                 {app.mfaEnabled ? 'Enabled' : 'Disabled'}
               </Badge>
             </div>

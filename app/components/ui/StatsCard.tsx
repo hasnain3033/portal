@@ -26,7 +26,7 @@ export function StatsCard({
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-600">{title}</p>
+            <p className="text-sm font-medium text-gray-500">{title}</p>
             <p className="mt-2 text-3xl font-semibold text-gray-900">
               {typeof value === 'number' ? value.toLocaleString() : value}
             </p>
@@ -50,8 +50,8 @@ export function StatsCard({
           </div>
           
           {icon && (
-            <div className="ml-4 p-3 bg-gray-50 rounded-lg">
-              <div className="h-8 w-8 text-gray-600">{icon}</div>
+            <div className="ml-4 p-3 bg-surface-background rounded-lg">
+              <div className="h-8 w-8 text-gray-500">{icon}</div>
             </div>
           )}
         </div>

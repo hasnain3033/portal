@@ -4,10 +4,11 @@
 
 /* Import design system styles */
 @import './styles/design-system.css';
+@import './styles/text-fix.css';
 
 html,
 body {
-  @apply bg-surface-background;
+  @apply bg-surface-background text-gray-900;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;

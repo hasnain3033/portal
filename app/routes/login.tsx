@@ -58,13 +58,13 @@ export default function Login() {
   const isSubmitting = navigation.state === "submitting";
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow">
+    <div className="flex min-h-screen items-center justify-center bg-surface-background">
+      <div className="w-full max-w-md space-y-8 rounded-lg bg-surface-card p-8 shadow">
         <div>
           <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
             Developer Portal
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-500">
             Sign in to manage your applications
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function Login() {
               type="email"
               autoComplete="email"
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-surface-border px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
 
@@ -100,13 +100,13 @@ export default function Login() {
               type="password"
               autoComplete="current-password"
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              className="mt-1 block w-full rounded-md border border-surface-border px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             />
           </div>
 
           {actionData?.error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{actionData.error}</p>
+            <div className="rounded-md bg-error/10 p-4">
+              <p className="text-sm text-error-dark">{actionData.error}</p>
             </div>
           )}
 
@@ -119,7 +119,7 @@ export default function Login() {
           </Button>
 
           <div className="text-center text-sm">
-            <span className="text-gray-600">Don't have an account? </span>
+            <span className="text-gray-500">Don't have an account? </span>
             <a
               href="/signup"
               className="font-medium text-indigo-600 hover:text-indigo-500"

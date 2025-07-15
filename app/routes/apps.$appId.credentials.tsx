@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
@@ -33,7 +33,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function ApiCredentials() {
-  const { app } = useLoaderData<{ app: any }>();
+  const { app } = useOutletContext<{ app: any }>();
   const fetcher = useFetcher();
   const [showSecret, setShowSecret] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -96,7 +96,7 @@ export default function ApiCredentials() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-gray-700">Client Secret</label>
-              <Badge variant="outline" className="text-xs bg-red-50">Secret</Badge>
+              <Badge variant="outline" className="text-xs bg-error/10">Secret</Badge>
             </div>
             <div className="flex items-center space-x-2">
               <code className="flex-1 bg-gray-100 px-3 py-2 rounded text-sm font-mono">
@@ -154,7 +154,7 @@ export default function ApiCredentials() {
           <div>
             <h4 className="text-sm font-medium mb-2">Base URL</h4>
             <code className="bg-gray-100 px-3 py-2 rounded text-sm block">
-              {window.location.origin.replace('portal', 'localhost:3000')}/auth
+              http://localhost:3000/auth
             </code>
           </div>
 
@@ -194,7 +194,7 @@ export default function ApiCredentials() {
         <CardContent>
           <div className="bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto">
             <pre className="text-sm">{`# User signup
-curl -X POST ${window.location.origin.replace('portal', 'localhost:3000')}/auth/users/signup \\
+curl -X POST http://localhost:3000/auth/users/signup \\
   -H "Content-Type: application/json" \\
   -d '{
     "email": "user@example.com",
@@ -205,7 +205,7 @@ curl -X POST ${window.location.origin.replace('portal', 'localhost:3000')}/auth/
   }'
 
 # User login
-curl -X POST ${window.location.origin.replace('portal', 'localhost:3000')}/auth/users/login \\
+curl -X POST http://localhost:3000/auth/users/login \\
   -H "Content-Type: application/json" \\
   -d '{
     "email": "user@example.com",
@@ -227,7 +227,7 @@ curl -X POST ${window.location.origin.replace('portal', 'localhost:3000')}/auth/
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="border rounded p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Key className="h-5 w-5 text-blue-600" />
+                <Key className="h-5 w-5 text-primary-600" />
                 <h4 className="font-medium">JavaScript SDK</h4>
               </div>
               <code className="text-sm bg-gray-100 px-2 py-1 rounded">
@@ -240,7 +240,7 @@ curl -X POST ${window.location.origin.replace('portal', 'localhost:3000')}/auth/
 
             <div className="border rounded p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Key className="h-5 w-5 text-blue-600" />
+                <Key className="h-5 w-5 text-primary-600" />
                 <h4 className="font-medium">React SDK</h4>
               </div>
               <code className="text-sm bg-gray-100 px-2 py-1 rounded">

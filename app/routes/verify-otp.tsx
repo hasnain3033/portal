@@ -142,13 +142,13 @@ export default function VerifyOTP() {
   const canResend = resendCooldown === 0;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow">
+    <div className="flex min-h-screen items-center justify-center bg-surface-background">
+      <div className="w-full max-w-md space-y-8 rounded-lg bg-surface-card p-8 shadow">
         <div>
           <h2 className="text-center text-3xl font-bold tracking-tight text-gray-900">
             Verify Your Email
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-500">
             We've sent a 6-digit code to {email}
           </p>
         </div>
@@ -171,7 +171,7 @@ export default function VerifyOTP() {
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-12 text-center text-lg font-semibold border border-gray-300 rounded-md focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+                  className="w-12 h-12 text-center text-lg font-semibold border border-surface-border rounded-md focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                   autoFocus={index === 0}
                 />
               ))}
@@ -179,8 +179,8 @@ export default function VerifyOTP() {
           </div>
 
           {actionData?.error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{actionData.error}</p>
+            <div className="rounded-md bg-error/10 p-4">
+              <p className="text-sm text-error-dark">{actionData.error}</p>
             </div>
           )}
 
@@ -221,7 +221,7 @@ export default function VerifyOTP() {
           <div className="text-center text-sm">
             <a
               href="/login"
-              className="text-gray-600 hover:text-gray-500"
+              className="text-gray-500 hover:text-gray-500"
             >
               Back to login
             </a>

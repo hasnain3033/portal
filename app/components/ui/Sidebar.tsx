@@ -26,9 +26,6 @@ interface NavItem {
 const navigation: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Applications", href: "/apps", icon: Box },
-  { name: "Users", href: "/users", icon: Users },
-  { name: "API Keys", href: "/api-keys", icon: Key },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Quick Start", href: "/quickstart", icon: BookOpen },
   { name: "Billing", href: "/billing", icon: CreditCard },
   { name: "Settings", href: "/settings", icon: Settings },
@@ -76,7 +73,7 @@ export function Sidebar({ developer }: SidebarProps) {
               transition-colors duration-150 ease-in-out
               ${active
                 ? "bg-primary-50 text-primary-700"
-                : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                : "text-gray-700 hover:bg-surface-background hover:text-gray-900"
               }
               ${depth > 0 ? "ml-6" : ""}
             `}
@@ -115,7 +112,7 @@ export function Sidebar({ developer }: SidebarProps) {
           transition-colors duration-150 ease-in-out
           ${active
             ? "bg-primary-50 text-primary-700"
-            : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+            : "text-gray-700 hover:bg-surface-background hover:text-gray-900"
           }
           ${depth > 0 ? "ml-6" : ""}
         `}
@@ -177,7 +174,7 @@ export function Sidebar({ developer }: SidebarProps) {
           <div className="flex items-center justify-between px-3 py-2">
             <div className="flex items-center">
               <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-gray-500">
                   {developer?.email?.[0]?.toUpperCase() || 'U'}
                 </span>
               </div>
@@ -193,7 +190,7 @@ export function Sidebar({ developer }: SidebarProps) {
           <Form method="post" action="/logout">
             <button
               type="submit"
-              className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150"
+              className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-surface-background hover:text-gray-900 transition-colors duration-150"
             >
               <LogOut className="mr-3 h-5 w-5 text-gray-400" />
               Logout
@@ -210,7 +207,7 @@ export function Sidebar({ developer }: SidebarProps) {
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setMobileMenuOpen(true)}
-          className="p-2 rounded-md bg-white shadow-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+          className="p-2 rounded-md bg-surface-card shadow-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
         >
           <Menu className="h-6 w-6" />
         </button>
@@ -230,7 +227,7 @@ export function Sidebar({ developer }: SidebarProps) {
 
         {/* Sidebar panel */}
         <div
-          className={`absolute inset-y-0 left-0 flex w-64 flex-col bg-white transform transition-transform duration-300 ease-in-out ${
+          className={`absolute inset-y-0 left-0 flex w-64 flex-col bg-surface-card transform transition-transform duration-300 ease-in-out ${
             mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -240,7 +237,7 @@ export function Sidebar({ developer }: SidebarProps) {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-1 bg-white border-r">
+        <div className="flex flex-col flex-1 bg-surface-card border-r">
           <SidebarContent />
         </div>
       </div>

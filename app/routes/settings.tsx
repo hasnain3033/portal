@@ -69,8 +69,8 @@ export default function Settings() {
   
   return (
     <AuthenticatedLayout>
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow">
+      <div className="min-h-screen bg-surface-background">
+        <header className="bg-surface-card shadow">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Account Settings
@@ -99,7 +99,7 @@ export default function Settings() {
                           type="email"
                           value={developer.email}
                           disabled
-                          className="bg-gray-50"
+                          className="bg-surface-background"
                         />
                         {developer.emailVerified && (
                           <Badge variant="outline" className="bg-green-50">
@@ -116,7 +116,7 @@ export default function Settings() {
                         id="developerId"
                         value={developer.id}
                         disabled
-                        className="bg-gray-50 font-mono text-sm"
+                        className="bg-surface-background font-mono text-sm"
                       />
                     </div>
                   </div>
@@ -131,7 +131,7 @@ export default function Settings() {
                         day: 'numeric'
                       })}
                       disabled
-                      className="bg-gray-50"
+                      className="bg-surface-background"
                     />
                   </div>
                   
@@ -209,8 +209,8 @@ export default function Settings() {
                       </div>
                       
                       {fetcher.data?.error && fetcher.data._action === "changePassword" && (
-                        <div className="rounded-md bg-red-50 p-4">
-                          <p className="text-sm text-red-800">{fetcher.data.error}</p>
+                        <div className="rounded-md bg-error/10 p-4">
+                          <p className="text-sm text-error-dark">{fetcher.data.error}</p>
                         </div>
                       )}
                       
@@ -332,7 +332,7 @@ export default function Settings() {
             {/* Danger Zone */}
             <Card className="border-red-200">
               <CardHeader>
-                <CardTitle className="text-red-600">Danger Zone</CardTitle>
+                <CardTitle className="text-error">Danger Zone</CardTitle>
                 <CardDescription>Irreversible actions for your account</CardDescription>
               </CardHeader>
               <CardContent>
@@ -343,7 +343,7 @@ export default function Settings() {
                       Permanently delete your account and all associated data
                     </p>
                   </div>
-                  <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
+                  <Button variant="outline" className="border-red-300 text-error hover:bg-error/10">
                     <AlertCircle className="h-4 w-4 mr-2" />
                     Delete Account
                   </Button>
