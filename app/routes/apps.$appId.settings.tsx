@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useOutletContext, useFetcher } from "@remix-run/react";
+import { useOutletContext, useFetcher, useRevalidator } from "@remix-run/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -34,52 +34,106 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export default function AppSettings() {
   const { app } = useOutletContext<{ app: any }>();
   const fetcher = useFetcher();
+  const revalidator = useRevalidator();
+  // Initialize with existing URIs
   const [redirectUris, setRedirectUris] = useState<string[]>(app.redirectUris || []);
   const [allowedOrigins, setAllowedOrigins] = useState<string[]>(app.allowedOrigins || []);
-  const [newRedirectUri, setNewRedirectUri] = useState("");
-  const [newOrigin, setNewOrigin] = useState("");
   const [isActive, setIsActive] = useState(app.isActive ?? true);
   const [mfaEnabled, setMfaEnabled] = useState(app.mfaEnabled ?? false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showRedirectUriWarning, setShowRedirectUriWarning] = useState(false);
 
-  // Auto-dismiss success message after 3 seconds
+  // Sync state with app data when it changes
+  useEffect(() => {
+    setRedirectUris(app.redirectUris || []);
+    setAllowedOrigins(app.allowedOrigins || []);
+    setIsActive(app.isActive ?? true);
+    setMfaEnabled(app.mfaEnabled ?? false);
+  }, [app]);
+
+  // Auto-dismiss success message after 3 seconds and revalidate data
   useEffect(() => {
     if (fetcher.data?.success && !showSuccess) {
       setShowSuccess(true);
+      // Revalidate to get fresh data from the server
+      revalidator.revalidate();
       const timer = setTimeout(() => {
         setShowSuccess(false);
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [fetcher.data?.success, showSuccess]);
+  }, [fetcher.data?.success, showSuccess, revalidator]);
 
-  const addRedirectUri = () => {
-    if (newRedirectUri && !redirectUris.includes(newRedirectUri)) {
-      setRedirectUris([...redirectUris, newRedirectUri]);
-      setNewRedirectUri("");
+  const updateRedirectUri = (index: number, value: string) => {
+    const newUris = [...redirectUris];
+    newUris[index] = value;
+    setRedirectUris(newUris);
+  };
+
+  const addRedirectUriField = () => {
+    setRedirectUris([...redirectUris, ""]);
+  };
+
+  const removeRedirectUri = (index: number) => {
+    // Don't remove if it's the only non-empty URI
+    const nonEmptyUris = redirectUris.filter(uri => uri.trim() !== "");
+    if (nonEmptyUris.length <= 1 && redirectUris[index].trim() !== "") {
+      setShowRedirectUriWarning(true);
+      setTimeout(() => setShowRedirectUriWarning(false), 3000);
+      return;
     }
+    
+    const newUris = redirectUris.filter((_, i) => i !== index);
+    setRedirectUris(newUris);
   };
 
-  const removeRedirectUri = (uri: string) => {
-    setRedirectUris(redirectUris.filter(u => u !== uri));
+  const updateAllowedOrigin = (index: number, value: string) => {
+    const newOrigins = [...allowedOrigins];
+    newOrigins[index] = value;
+    setAllowedOrigins(newOrigins);
   };
 
-  const addOrigin = () => {
-    if (newOrigin && !allowedOrigins.includes(newOrigin)) {
-      setAllowedOrigins([...allowedOrigins, newOrigin]);
-      setNewOrigin("");
+  const addAllowedOriginField = () => {
+    setAllowedOrigins([...allowedOrigins, ""]);
+  };
+
+  const removeAllowedOrigin = (index: number) => {
+    // Don't remove if it's the only non-empty origin
+    const nonEmptyOrigins = allowedOrigins.filter(origin => origin.trim() !== "");
+    if (nonEmptyOrigins.length <= 1 && allowedOrigins[index].trim() !== "") {
+      alert("At least one allowed origin is required");
+      return;
     }
-  };
-
-  const removeOrigin = (origin: string) => {
-    setAllowedOrigins(allowedOrigins.filter(o => o !== origin));
+    
+    const newOrigins = allowedOrigins.filter((_, i) => i !== index);
+    setAllowedOrigins(newOrigins);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Filter out empty values
+    const validRedirectUris = redirectUris.filter(uri => uri.trim() !== "");
+    const validAllowedOrigins = allowedOrigins.filter(origin => origin.trim() !== "");
+    
+    // Validate that there's at least one redirect URI
+    if (validRedirectUris.length === 0) {
+      alert("At least one redirect URI is required");
+      return;
+    }
+    
+    // Validate that there's at least one allowed origin
+    if (validAllowedOrigins.length === 0) {
+      alert("At least one allowed origin is required for CORS");
+      return;
+    }
+    
+    console.log("Submitting with redirect URIs:", validRedirectUris);
+    console.log("Submitting with allowed origins:", validAllowedOrigins);
+    
     const formData = new FormData(e.currentTarget);
-    formData.set("redirectUris", JSON.stringify(redirectUris));
-    formData.set("allowedOrigins", JSON.stringify(allowedOrigins));
+    formData.set("redirectUris", JSON.stringify(validRedirectUris));
+    formData.set("allowedOrigins", JSON.stringify(validAllowedOrigins));
     formData.set("isActive", isActive.toString());
     formData.set("mfaEnabled", mfaEnabled.toString());
     fetcher.submit(formData, { method: "post" });
@@ -159,37 +213,47 @@ export default function AppSettings() {
           <CardTitle>Redirect URIs</CardTitle>
           <CardDescription>
             Allowed redirect URIs for OAuth flows. Must be exact matches.
+            {showRedirectUriWarning && (
+              <span className="text-red-500 text-sm block mt-1">
+                * At least one redirect URI is required
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             {redirectUris.map((uri, index) => (
               <div key={index} className="flex items-center gap-2">
-                <Input value={uri} readOnly className="flex-1" />
+                <Input 
+                  value={uri} 
+                  onChange={(e) => updateRedirectUri(index, e.target.value)}
+                  placeholder="https://myapp.com/callback"
+                  className="flex-1" 
+                />
                 <Button
                   type="button"
                   size="sm"
                   variant="ghost"
-                  onClick={() => removeRedirectUri(uri)}
+                  onClick={() => removeRedirectUri(index)}
+                  title="Remove redirect URI"
+                  disabled={redirectUris.filter(u => u.trim() !== "").length <= 1 && uri.trim() !== ""}
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
             ))}
           </div>
-
-          <div className="flex gap-2">
-            <Input
-              placeholder="https://myapp.com/callback"
-              value={newRedirectUri}
-              onChange={(e) => setNewRedirectUri(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addRedirectUri())}
-            />
-            <Button type="button" onClick={addRedirectUri}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add
-            </Button>
-          </div>
+          
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={addRedirectUriField}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Redirect URI
+          </Button>
         </CardContent>
       </Card>
 
@@ -198,38 +262,43 @@ export default function AppSettings() {
         <CardHeader>
           <CardTitle>Allowed Origins</CardTitle>
           <CardDescription>
-            Origins allowed to make requests to your application (CORS)
+            Origins allowed to make requests to your application (CORS). Must be exact URLs without wildcards.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             {allowedOrigins.map((origin, index) => (
               <div key={index} className="flex items-center gap-2">
-                <Input value={origin} readOnly className="flex-1" />
+                <Input 
+                  value={origin} 
+                  onChange={(e) => updateAllowedOrigin(index, e.target.value)}
+                  placeholder="https://myapp.com"
+                  className="flex-1" 
+                />
                 <Button
                   type="button"
                   size="sm"
                   variant="ghost"
-                  onClick={() => removeOrigin(origin)}
+                  onClick={() => removeAllowedOrigin(index)}
+                  title="Remove allowed origin"
+                  disabled={allowedOrigins.filter(o => o.trim() !== "").length <= 1 && origin.trim() !== ""}
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
             ))}
           </div>
-
-          <div className="flex gap-2">
-            <Input
-              placeholder="https://myapp.com"
-              value={newOrigin}
-              onChange={(e) => setNewOrigin(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addOrigin())}
-            />
-            <Button type="button" onClick={addOrigin}>
-              <Plus className="h-4 w-4 mr-1" />
-              Add
-            </Button>
-          </div>
+          
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={addAllowedOriginField}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Allowed Origin
+          </Button>
         </CardContent>
       </Card>
 

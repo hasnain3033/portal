@@ -23,6 +23,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   
   const name = formData.get("name");
+  const description = formData.get("description");
   const redirectUri = formData.get("redirectUri");
   const webhookUrl = formData.get("webhookUrl");
 
@@ -64,6 +65,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const app = await createApp(accessToken, {
       name,
+      description: description && typeof description === "string" ? description : undefined,
       redirectUris: [redirectUri],
       webhookUrl: webhookUrl && typeof webhookUrl === "string" && webhookUrl.trim() ? webhookUrl : undefined,
     });
@@ -124,6 +126,20 @@ export default function NewApp() {
                   />
                   <p className="mt-1 text-sm text-gray-500">
                     This name will be displayed to your users
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Description (Optional)</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    placeholder="Describe your application..."
+                    className="mt-1"
+                    rows={3}
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    A brief description of your application
                   </p>
                 </div>
 

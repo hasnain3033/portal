@@ -61,15 +61,20 @@ export default function QuickStart() {
     switch (selectedFramework) {
       case 'react':
         return `import { AuthProvider } from '@authservice/react';
+import { AuthServiceClient } from '@authservice/core';
 import { BrowserRouter } from 'react-router-dom';
+
+// Initialize the auth client
+const authClient = new AuthServiceClient({
+  apiUrl: 'YOUR_AUTH_SERVICE_URL', // e.g., https://auth.example.com
+  appId: 'YOUR_APP_ID',
+  clientId: 'YOUR_CLIENT_ID',
+});
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider 
-        clientId="YOUR_CLIENT_ID"
-        redirectUri={window.location.origin + '/callback'}
-      >
+      <AuthProvider client={authClient}>
         {/* Your app components */}
       </AuthProvider>
     </BrowserRouter>
@@ -78,13 +83,18 @@ function App() {
       case 'nextjs':
         return `// _app.tsx
 import { AuthProvider } from '@authservice/react';
+import { AuthServiceClient } from '@authservice/core';
+
+// Initialize the auth client
+const authClient = new AuthServiceClient({
+  apiUrl: process.env.NEXT_PUBLIC_AUTH_SERVICE_URL!, // e.g., https://auth.example.com
+  appId: process.env.NEXT_PUBLIC_APP_ID!,
+  clientId: process.env.NEXT_PUBLIC_CLIENT_ID!,
+});
 
 function MyApp({ Component, pageProps }) {
   return (
-    <AuthProvider 
-      clientId="YOUR_CLIENT_ID"
-      redirectUri={window.location.origin + '/callback'}
-    >
+    <AuthProvider client={authClient}>
       <Component {...pageProps} />
     </AuthProvider>
   );
@@ -98,6 +108,8 @@ import { createAuth } from '@authservice/vue';
 import App from './App.vue';
 
 const auth = createAuth({
+  apiUrl: 'YOUR_AUTH_SERVICE_URL', // e.g., https://auth.example.com
+  appId: 'YOUR_APP_ID',
   clientId: 'YOUR_CLIENT_ID',
   redirectUri: window.location.origin + '/callback'
 });
@@ -106,11 +118,12 @@ createApp(App)
   .use(auth)
   .mount('#app');`;
       default:
-        return `import { AuthClient } from '@authservice/core';
+        return `import { AuthServiceClient } from '@authservice/core';
 
-const auth = new AuthClient({
+const auth = new AuthServiceClient({
+  apiUrl: 'YOUR_AUTH_SERVICE_URL', // e.g., https://auth.example.com
+  appId: 'YOUR_APP_ID',
   clientId: 'YOUR_CLIENT_ID',
-  redirectUri: window.location.origin + '/callback'
 });
 
 // Login
@@ -296,10 +309,22 @@ document.getElementById('logout-btn').addEventListener('click', () => {
                     </Button>
                   </div>
                 </div>
-                <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                  <p className="text-sm text-yellow-800">
-                    <strong>Note:</strong> Replace YOUR_CLIENT_ID with your actual client ID from your app settings.
-                  </p>
+                <div className="mt-3 space-y-3">
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                    <p className="text-sm text-yellow-800">
+                      <strong>Note:</strong> Replace the following with your actual values:
+                    </p>
+                    <ul className="list-disc list-inside mt-2 text-sm text-yellow-700">
+                      <li><strong>YOUR_AUTH_SERVICE_URL</strong>: The URL of this auth service (e.g., http://localhost:3000)</li>
+                      <li><strong>YOUR_APP_ID</strong>: Your app's ID from the app settings</li>
+                      <li><strong>YOUR_CLIENT_ID</strong>: Your app's client ID from the credentials page</li>
+                    </ul>
+                  </div>
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                    <p className="text-sm text-blue-800">
+                      <strong>CORS Configuration:</strong> Make sure to add your application's URL to the "Allowed Origins" in your app settings to enable cross-origin requests.
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
